@@ -12,7 +12,7 @@ import SwiftUI
 struct NotesAppSwiftDataApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NotesListView()
                 .modelContainer(
                     for: [
                         Note.self,
