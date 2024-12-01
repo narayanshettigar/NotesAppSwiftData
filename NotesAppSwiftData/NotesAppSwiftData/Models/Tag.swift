@@ -10,13 +10,14 @@ import SwiftData
 @Model
 class Tag {
     @Attribute(.unique) var id: String
-    var content: String
+    @Attribute(.ephemeral) var isChecked: Bool = false
+    var name: String
     
     @Relationship var notes: [Note]
     
-    init(id: String, content: String, notes: [Note]) {
+    init(id: String, name: String, notes: [Note]) {
         self.id = id
-        self.content = content
+        self.name = name
         self.notes = notes
     }
 }

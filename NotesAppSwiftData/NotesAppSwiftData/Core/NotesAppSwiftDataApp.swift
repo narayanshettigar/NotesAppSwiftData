@@ -12,13 +12,36 @@ import SwiftUI
 struct NotesAppSwiftDataApp: App {
     var body: some Scene {
         WindowGroup {
-            NotesListView()
-                .modelContainer(
-                    for: [
-                        Note.self,
-                        Tag.self
-                    ]
-                )
+            TabView {
+                notesList
+                tagsList
+            }
+            .modelContainer(
+                for: [
+                    Note.self,
+                    Tag.self
+                ]
+            )
         }
+    }
+}
+
+var notesList: some View {
+    NavigationStack {
+        NotesListView()
+            .navigationTitle("Notes")
+    }
+    .tabItem {
+        Label("Notes", systemImage: "note")
+    }
+}
+
+var tagsList: some View {
+    NavigationStack {
+        TagListView()
+            .navigationTitle("Tags")
+    }
+    .tabItem {
+        Label("Tags", systemImage: "tag")
     }
 }

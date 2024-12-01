@@ -11,7 +11,9 @@ import SwiftData
 struct NotesListView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \Note.createdAt, order: .reverse) var allNotes: [Note]
+    @Query(sort: \Tag.name, order: .forward) var allTags: [Tag]
     @State var textFieldText = ""
+    @State private var selectedTags: Set<Tag> = []
     
     var body: some View {
         List {
@@ -21,6 +23,30 @@ struct NotesListView: View {
                         Text("Enter a text")
                     }
                     .lineLimit(2...4)
+                    
+                    DisclosureGroup("Tags") {
+                        if allTags.isEmpty {
+                            Text("You do not have any tags")
+                                .foregroundStyle(.gray)
+                        }
+                        
+                        ForEach(allTags) { tag in
+                            HStack {
+                                Text(tag.name)
+                                if tag.isChecked {
+                                    Spacer()
+                                    Image(systemName: "checkmark.circle")
+                                        .symbolRenderingMode(.multicolor )
+                                }
+                            }
+                            .frame(alignment: .leading)
+                            .clipShape(Rectangle())
+                            .onTapGesture {
+                                tag.isChecked.toggle()
+                            }
+                        }
+                        .onDelete(perform: deleteNote)
+                    }
                     
                     Button("Save") {
                         createNote()
@@ -34,9 +60,17 @@ struct NotesListView: View {
                     ForEach(allNotes) { note in
                         VStack(alignment: .leading) {
                             Text(note.content)
+
+                            if note.tags.count > 0 {
+                                Text("Tags:-" + note.tags.map { $0.name}.joined(separator: ", "))
+                                    .font(.caption )
+                            } else {
+                                Text("Nothing")
+                            }
+                            
                             Text(note.createdAt, style: .time)
                                 .font(.caption)
-                                
+                            
                         }
                     }
                     .onDelete(perform: deleteNote)
@@ -46,7 +80,14 @@ struct NotesListView: View {
     }
     
     func createNote() {
-        let note = Note(id: UUID().uuidString, content: textFieldText, createdAt: .now)
+        var tags = [Tag]()
+        allTags.forEach { tag in
+            if tag.isChecked {
+                print(tag.name)
+                tags.append(tag)
+            }
+        }
+        let note = Note(id: UUID().uuidString, content: textFieldText, createdAt: .now, tags: tags)
         context.insert(note)
         saveNotes()
     }
